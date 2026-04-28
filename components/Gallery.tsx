@@ -1,10 +1,9 @@
-// TODO: Replace placeholder divs with real project photos.
-// Use Next.js <Image>: import Image from "next/image"
-// Place photos in /public/gallery/ and reference as src="/gallery/photo-1.jpg"
-const placeholders = [
-  { id: 1, label: "Painting Project" }, { id: 2, label: "Drywall Repair" },
-  { id: 3, label: "Fixture Installation" }, { id: 4, label: "Shelf Hanging" },
-  { id: 5, label: "Home Repair" }, { id: 6, label: "Interior Painting" },
+import Image from "next/image";
+// Photos in /public/gallery/ — job1.jpg (home bar), job2.jpg (kitchen), job3.jpg (wine cellar)
+const photos = [
+  { src: "/gallery/job1.jpg", label: "Home Bar Build-Out", alt: "Custom home bar with marble countertop and wine rack" },
+  { src: "/gallery/job2.jpg", label: "Kitchen Backsplash & Fixtures", alt: "Stone tile backsplash with lighting and outlet work" },
+  { src: "/gallery/job3.jpg", label: "Wine Cellar Shelving", alt: "Custom wine cellar with built-in shelving and stone accent wall" },
 ];
 export default function Gallery() {
   return (
@@ -13,11 +12,13 @@ export default function Gallery() {
         <p className="text-xs tracking-widest uppercase text-warm-gray mb-4">Portfolio</p>
         <h2 className="font-display text-3xl md:text-4xl font-normal mb-14">Our Work</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {placeholders.map(({ id, label }) => (
-            <div key={id} className="aspect-[4/3] bg-charcoal border border-border-gray flex flex-col items-center justify-center gap-3 text-center p-6">
-              <svg viewBox="0 0 40 40" fill="none" className="w-10 h-10 text-border-gray" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="8" width="32" height="24" rx="2" /><circle cx="14" cy="17" r="3" /><path d="M4 28l8-8 6 6 4-4 10 10" /></svg>
-              <p className="text-border-gray text-xs tracking-widest uppercase">{label}</p>
-              <p className="text-warm-gray text-xs">Photo coming soon</p>
+          {photos.map(({ src, label, alt }) => (
+            <div key={src} className="relative aspect-[4/3] overflow-hidden group">
+              <Image src={src} alt={alt} fill className="object-cover transition-transform duration-500 group-hover:scale-105" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-colors duration-300" />
+              <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                <p className="text-white text-xs tracking-widest uppercase font-sans font-semibold">{label}</p>
+              </div>
             </div>
           ))}
         </div>
