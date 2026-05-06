@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { appendLeadToSheet } from "@/lib/sheets";
+import { notifyTed } from "@/lib/email";
 
-// TODO: Wire up email delivery before going live.
-// Options:
-//   A) Resend — add RESEND_API_KEY to Vercel env vars
-//   B) Formspree — replace fetch in Contact.tsx with Formspree endpoint
-// Recipient: replace 13dmh33@gmail.com with Ted's actual address
+// TODO: Replace 13dmh33@gmail.com with Ted's actual email in lib/email.ts
+// TODO: Replace (555) 555-5555 with Ted's actual phone in components/Contact.tsx
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,7 +12,8 @@ export async function POST(req: NextRequest) {
     if (!name || !email || !service) {
       return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
     }
-    console.log("Contact form submission:", { name, phone, email, service, message });
+    const lead = { name, phone: phone || undefined, email, service, notes: message || undefined, source: "form" as const };
+    await Promise.allSettled([appendLeadToSheet(lead), notifyTed(lead)]);
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: "Internal server error." }, { status: 500 });
