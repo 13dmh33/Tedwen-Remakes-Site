@@ -1,5 +1,3 @@
-import { google } from "googleapis";
-
 export type Lead = {
   name: string;
   phone?: string;
@@ -11,32 +9,22 @@ export type Lead = {
 };
 
 export async function appendLeadToSheet(lead: Lead) {
-  const credentialsJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
-  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const scriptUrl = process.env.GOOGLE_SCRIPT_URL;
 
-  if (!credentialsJson || !sheetId) {
-    console.warn("Google Sheets not configured — skipping lead write.");
+  if (!scriptUrl) {
+    console.warn("GOOGLE_SCRIPT_URL not set — skipping lead write.");
     return;
   }
 
-  const credentials = JSON.parse(credentialsJson);
-  const auth = new google.auth.GoogleAuth({
-    credentials,
-    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+  const timestamp = new Date().toLocaleString("en-US", {
+    timeZone: "America/New_York",
   });
 
-  const sheets = google.sheets({ version: "v4", auth });
-  const timestamp = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
-
-  await sheets.spreadsheets.values.append({
-    spreadsheetId: sheetId,
-    range: "Leads!A:I",
-    valueInputOption: "USER_ENTERED",
-    requestBody: {
-      values: [[
-        timestamp, lead.name, lead.phone ?? "", lead.email ?? "",
-        lead.service, lead.zip ?? "", lead.notes ?? "", lead.source, "New",
-      ]],
-    },
+  // Apps Script web apps redirect POST requests — follow the redirect
+  await fetch(scriptUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ...lead, timestamp }),
+    redirect: "follow",
   });
 }
