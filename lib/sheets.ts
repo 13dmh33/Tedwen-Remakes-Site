@@ -20,11 +20,16 @@ export async function appendLeadToSheet(lead: Lead) {
     timeZone: "America/New_York",
   });
 
-  // Apps Script web apps redirect POST requests — follow the redirect
-  await fetch(scriptUrl, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ...lead, timestamp }),
-    redirect: "follow",
-  });
+  try {
+    const res = await fetch(scriptUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...lead, timestamp }),
+      redirect: "follow",
+    });
+    const text = await res.text();
+    console.log("Sheets response:", res.status, text);
+  } catch (err) {
+    console.error("Sheets write failed:", err);
+  }
 }
