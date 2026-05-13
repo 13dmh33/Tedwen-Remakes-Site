@@ -3,7 +3,6 @@ import { Resend } from "resend";
 import { NextRequest, NextResponse } from "next/server";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 const SYSTEM_PROMPT = `You are the scheduling assistant for Tedwen Remakes LLC, a home repair and renovation company in Canonsburg, PA serving greater Pittsburgh.
 
@@ -46,6 +45,7 @@ interface LeadData {
 
 async function notifyTed(lead: LeadData) {
   if (!process.env.RESEND_API_KEY) return;
+  const resend = new Resend(process.env.RESEND_API_KEY);
   const from = process.env.RESEND_FROM_EMAIL ?? "noreply@tedwenremakes.com";
   const to = process.env.TED_EMAIL ?? "13dmh33@gmail.com";
   await resend.emails.send({
